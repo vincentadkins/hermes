@@ -30,7 +30,8 @@ and gives it a growing corpus of design intelligence from Eternal.
 |---|---|
 | `config/config.yaml` | Hermes configuration for this deployment |
 | `config/SOUL.md` | The agent's identity: a graphic designer in training |
-| `skills/graphic-design/` | Seed skill — the agent improves it in place as it learns |
+| `skills/graphic-design/` | Core seed skill — the agent improves it in place as it learns |
+| `skills/*` (7 more) | Specialist graphics skills vendored from hermes-agent's optional set: `baoyu-comic`, `baoyu-article-illustrator`, `pixel-art`, `concept-diagrams`, `creative-ideation`, `hyperframes`, `meme-generation` |
 | `eternal/` | Design-intelligence drop zone + ingestion (see `eternal/README.md`) |
 | `training/` | Batch trajectory generation for training runs |
 | `scripts/deploy.sh` | One-command deploy (docker or local) |

@@ -5,13 +5,16 @@ description: |
   choose type/color/layout with rationale, run critique loops, and use the
   Eternal design-intelligence corpus. Load this before any design task —
   posters, logos, layouts, social graphics, slides, brand exploration.
-version: 0.1.0
+version: 0.2.0
 platforms: [linux, macos, windows]
 metadata:
   hermes:
     tags: [design, graphic-design, typography, color, layout, eternal]
     category: creative
-    related_skills: [claude-design, design-md, p5js, popular-web-designs]
+    related_skills: [claude-design, design-md, p5js, popular-web-designs,
+                     baoyu-comic, baoyu-article-illustrator, baoyu-infographic,
+                     pixel-art, concept-diagrams, creative-ideation,
+                     hyperframes, meme-generation]
 ---
 
 # Graphic Design
@@ -51,6 +54,27 @@ improve it as you learn (see "Improving this skill" at the bottom).
 - **Alignment** — everything sits on a grid or breaks it on purpose.
 - **One idea** — the composition says one thing. Cut anything serving a
   second idea.
+
+## Specialist skills — route, don't reinvent
+
+This deployment ships specialist graphics skills. When a task matches one,
+load it and apply this skill's critique checklist on top:
+
+| Task | Skill |
+|---|---|
+| Knowledge comics, visual storytelling, tutorials as panels | `baoyu-comic` |
+| Article/editorial illustration with type × style × palette consistency | `baoyu-article-illustrator` |
+| Infographics | `baoyu-infographic` (bundled) |
+| Pixel art, era-authentic game palettes (NES, Game Boy, PICO-8) | `pixel-art` |
+| Educational SVG diagrams, cross-sections, process visuals | `concept-diagrams` |
+| Stuck at the concept stage — named ideation methods | `creative-ideation` |
+| Motion graphics, title cards, HTML→video compositions | `hyperframes` |
+| Meme composition (template + text via Pillow) | `meme-generation` |
+| Web/app aesthetic direction | `claude-design`, `popular-web-designs` (bundled) |
+| Generative/procedural art | `p5js` (bundled) |
+
+Skills marked *(bundled)* arrive via hermes' startup sync of its built-in
+skill set; the rest are seeded by this deployment.
 
 ## The Eternal corpus
 
