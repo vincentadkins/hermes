@@ -50,17 +50,37 @@ The deploy script clones/updates `hermes-agent/`, seeds `data/` (config, SOUL.md
 skills) without clobbering anything the agent has already learned, and links the Eternal
 corpus to `data/eternal` so the agent always finds it at `$HERMES_HOME/eternal`.
 
-## Feeding it design intelligence
+## Eternal game wiring
 
-Drop Eternal exports into `eternal/design-intelligence/signals/` (JSONL, schema in
-`eternal/README.md`), then:
+Two paths feed the loop; both are set up by `deploy.sh`:
+
+**Push (live).** The gateway runs a webhook server; the game POSTs signals to it.
+Signals are validated, deduped, appended to `signals/inbox.jsonl`, and ingestion
+re-runs automatically — all without waking the LLM (zero token cost per signal).
+Set `WEBHOOK_SECRET` in `.env`, run `hermes gateway`, then from the game:
 
 ```bash
-python3 eternal/ingest.py
+BODY='{"id":"sig-001","type":"rating","task":"poster","summary":"..."}'
+SIG=$(printf '%s' "$BODY" | openssl dgst -sha256 -hmac "$WEBHOOK_SECRET" -hex | awk '{print $NF}')
+curl -X POST http://<host>:8644/webhooks/eternal-signal \
+  -H "Content-Type: application/json" \
+  -H "X-Hub-Signature-256: sha256=$SIG" -d "$BODY"
 ```
 
-This refreshes the digest the agent reads and regenerates
-`training/tasks/eternal-design-tasks.jsonl` for trajectory generation.
+Batches work too: `{"signals": [...]}`. Invalid or duplicate signals are
+rejected per-item; a forged signature gets a 401.
+
+**Practice (nightly).** A `eternal-practice` cron job (03:00, created by
+`deploy.sh local`) re-ingests the corpus, picks one untried task, runs the full
+graphic-design workflow, saves the artifact under `data/studio/<date>/`, logs to
+`data/studio/practice-log.md`, and folds lessons back into skills and memory.
+The gateway hosts the cron scheduler; without a long-running gateway, fire it
+manually with `hermes cron run eternal-practice` + `hermes cron tick`.
+
+**Manual drops** still work: put JSONL files in
+`eternal/design-intelligence/signals/` and run `python3 eternal/ingest.py`.
+Ingestion refreshes `digest.md` (what the agent reads) and regenerates
+`training/tasks/eternal-design-tasks.jsonl` (what datagen consumes).
 
 ## Generating training trajectories
 

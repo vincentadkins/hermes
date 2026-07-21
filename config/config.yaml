@@ -13,13 +13,17 @@ agent:
   verbose: false
   # Injected into the system prompt so the agent knows how this deployment is wired.
   environment_hint: |
-    This deployment is a design studio. The Eternal design-intelligence corpus is
-    mounted read-only at $HERMES_HOME/eternal: distilled principles live in
+    This deployment is a design studio. The Eternal design-intelligence corpus
+    lives at $HERMES_HOME/eternal: distilled principles in
     design-intelligence/principles/, a machine-generated digest at
     design-intelligence/digest.md, and raw gameplay signals in
-    design-intelligence/signals/. Consult the graphic-design skill before design
-    work, and record what you learn — your skills and memory persist across
-    sessions and are the point of this deployment.
+    design-intelligence/signals/. New signals arrive automatically via the
+    game's webhook — treat signals/ as append-only input, never edit it; write
+    your own distillations to principles/. Your practice artifacts belong under
+    $HERMES_HOME/studio/ with a running log in studio/practice-log.md. Consult
+    the graphic-design skill before design work, and record what you learn —
+    your skills and memory persist across sessions and are the point of this
+    deployment.
 
 terminal:
   backend: "local"
@@ -46,3 +50,21 @@ platform_toolsets:
   cli: [hermes-cli]
   telegram: [hermes-telegram]
   discord: [hermes-discord]
+
+# ── Eternal game integration ────────────────────────────────────────────────
+# The game pushes design signals to the gateway's webhook server:
+#   POST http://<host>:8644/webhooks/eternal-signal
+#   X-Hub-Signature-256: sha256=<hex hmac of raw body, key = WEBHOOK_SECRET>
+# The route script validates/dedupes signals into the corpus and re-runs
+# ingestion; it always returns [SILENT] so raw drops never wake the LLM.
+# Enable the server by setting WEBHOOK_ENABLED=true and WEBHOOK_SECRET in
+# the deployment .env (see .env.example), then run `hermes gateway`.
+platforms:
+  webhook:
+    enabled: true
+    extra:
+      port: 8644
+      routes:
+        eternal-signal:
+          # No per-route secret: falls back to the global WEBHOOK_SECRET.
+          script: "eternal_signal.py"
