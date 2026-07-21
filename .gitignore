@@ -1,0 +1,14 @@
+# Upstream agent source — cloned by scripts/deploy.sh, never vendored here
+hermes-agent/
+
+# Runtime state (HERMES_HOME for this deployment) — sessions, logs, memories,
+# learned skills, API keys. Never commit.
+data/
+
+# Secrets
+.env
+
+# Local tooling noise
+__pycache__/
+*.pyc
+node_modules/

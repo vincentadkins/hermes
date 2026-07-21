@@ -1,0 +1,43 @@
+# Hermes Designer deployment — gateway + dashboard.
+#
+# Usage:
+#   ./scripts/deploy.sh docker
+# (or manually: HERMES_UID=$(id -u) HERMES_GID=$(id -g) docker compose up -d --build)
+#
+# Adapted from hermes-agent's upstream docker-compose.yml with two changes:
+#   - HERMES_HOME is ./data in this repo (not ~/.hermes), so the deployment's
+#     config, memories, and learned skills live alongside the code that seeds them.
+#   - The Eternal design-intelligence corpus is mounted read-only at
+#     $HERMES_HOME/eternal, the path the graphic-design skill references.
+#
+# Security: the dashboard binds to 127.0.0.1. For remote access use an SSH
+# tunnel (`ssh -L 9119:localhost:9119 host`) — do not expose it unauthenticated.
+services:
+  gateway:
+    build: ./hermes-agent
+    image: hermes-agent
+    container_name: hermes-designer
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - ./data:/opt/data
+      - ./eternal:/opt/data/eternal:ro
+    environment:
+      - HERMES_UID=${HERMES_UID:-10000}
+      - HERMES_GID=${HERMES_GID:-10000}
+    command: ["gateway", "run"]
+
+  dashboard:
+    image: hermes-agent
+    container_name: hermes-designer-dashboard
+    restart: unless-stopped
+    network_mode: host
+    depends_on:
+      - gateway
+    volumes:
+      - ./data:/opt/data
+      - ./eternal:/opt/data/eternal:ro
+    environment:
+      - HERMES_UID=${HERMES_UID:-10000}
+      - HERMES_GID=${HERMES_GID:-10000}
+    command: ["dashboard", "--host", "127.0.0.1", "--no-open"]

@@ -1,0 +1,48 @@
+# Hermes Designer deployment config.
+# Installed to data/config.yaml (HERMES_HOME) by scripts/deploy.sh.
+# Key reference: hermes-agent/cli-config.yaml.example
+
+model:
+  default: "anthropic/claude-opus-4.6"
+  provider: "auto"
+
+agent:
+  # Design work is iterative — leave room for critique/revise cycles.
+  max_turns: 100
+  reasoning_effort: "medium"
+  verbose: false
+  # Injected into the system prompt so the agent knows how this deployment is wired.
+  environment_hint: |
+    This deployment is a design studio. The Eternal design-intelligence corpus is
+    mounted read-only at $HERMES_HOME/eternal: distilled principles live in
+    design-intelligence/principles/, a machine-generated digest at
+    design-intelligence/digest.md, and raw gameplay signals in
+    design-intelligence/signals/. Consult the graphic-design skill before design
+    work, and record what you learn — your skills and memory persist across
+    sessions and are the point of this deployment.
+
+terminal:
+  backend: "local"
+  cwd: "."
+  timeout: 180
+  home_mode: "auto"
+
+# The learning loop is the point of this deployment — nudge a little more
+# often than default so design lessons get persisted.
+skills:
+  creation_nudge_interval: 10
+
+memory:
+  memory_enabled: true
+  user_profile_enabled: true
+  nudge_interval: 8
+  flush_min_turns: 6
+
+compression:
+  enabled: true
+  threshold: 0.50
+
+platform_toolsets:
+  cli: [hermes-cli]
+  telegram: [hermes-telegram]
+  discord: [hermes-discord]
