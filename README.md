@@ -50,6 +50,25 @@ The deploy script clones/updates `hermes-agent/`, seeds `data/` (config, SOUL.md
 skills) without clobbering anything the agent has already learned, and links the Eternal
 corpus to `data/eternal` so the agent always finds it at `$HERMES_HOME/eternal`.
 
+### Egress preflight
+
+`deploy.sh` first runs `scripts/preflight.sh`, which verifies every host the deploy
+needs — the LLM provider (`openrouter.ai`, or `api.anthropic.com` if you switched to
+the Anthropic fallback), `github.com`/`codeload.github.com` for the clone, and
+`pypi.org`/`files.pythonhosted.org` for the install — and, when a provider key is
+present, confirms the key itself works. If a required host is blocked it prints the
+exact allowlist entry to add and aborts before any clone or install. Run it on its
+own any time:
+
+```bash
+scripts/preflight.sh            # full report;  exit 0 = safe to deploy
+scripts/preflight.sh --quiet    # failures + verdict only
+SKIP_PREFLIGHT=1 ./scripts/deploy.sh local   # bypass the gate (offline install)
+```
+
+The network policy is snapshotted when a session's container starts, so if you change
+the allowlist you must start a **fresh** session for it to take effect.
+
 ## Eternal game wiring
 
 Two paths feed the loop; both are set up by `deploy.sh`:

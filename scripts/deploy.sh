@@ -19,6 +19,20 @@ UPSTREAM="https://github.com/NousResearch/hermes-agent.git"
 
 log() { printf '\033[1;36m[deploy]\033[0m %s\n' "$*"; }
 
+# ── 0. Egress preflight — never deploy against a blocked provider ────────────
+# Confirms every host the deploy needs (LLM provider, GitHub, PyPI) is
+# reachable before we clone or install. Bypass with SKIP_PREFLIGHT=1 when you
+# deliberately want to install offline ahead of the allowlist being opened.
+if [ "${SKIP_PREFLIGHT:-0}" != "1" ] && [ -x "$ROOT/scripts/preflight.sh" ]; then
+  log "running egress preflight (set SKIP_PREFLIGHT=1 to bypass)"
+  if ! "$ROOT/scripts/preflight.sh"; then
+    log "egress preflight FAILED — aborting before any clone/install."
+    log "fix the allowlist as shown above, start a fresh session, and re-run —"
+    log "or re-run now with SKIP_PREFLIGHT=1 to install offline anyway."
+    exit 1
+  fi
+fi
+
 # ── 1. Upstream source ───────────────────────────────────────────────────────
 if [ ! -d "$AGENT_DIR/.git" ]; then
   log "cloning hermes-agent"
