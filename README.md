@@ -32,11 +32,12 @@ and gives it a growing corpus of design intelligence from Eternal.
 | `config/SOUL.md` | The agent's identity: a graphic designer in training |
 | `skills/graphic-design/` | Core seed skill — the agent improves it in place as it learns |
 | `skills/*` (7 more) | Specialist graphics skills vendored from hermes-agent's optional set: `baoyu-comic`, `baoyu-article-illustrator`, `pixel-art`, `concept-diagrams`, `creative-ideation`, `hyperframes`, `meme-generation` |
+| `skills/ticket-workflow/` | Ticketed work: a skill wrapper over a vendored upstream template (see below) |
 | `eternal/` | Design-intelligence drop zone + ingestion (see `eternal/README.md`) |
 | `training/` | Batch trajectory generation for training runs |
 | `scripts/deploy.sh` | One-command deploy (docker or local) |
 | `docker-compose.yml` | Gateway + dashboard services |
-| `data/` | Runtime HERMES_HOME (gitignored): sessions, memories, learned skills |
+| `data/` | Runtime HERMES_HOME (gitignored): sessions, memories, learned skills, `studio/` artifacts, `tickets/` |
 
 ## Quickstart
 
@@ -100,6 +101,44 @@ manually with `hermes cron run eternal-practice` + `hermes cron tick`.
 `eternal/design-intelligence/signals/` and run `python3 eternal/ingest.py`.
 Ingestion refreshes `digest.md` (what the agent reads) and regenerates
 `training/tasks/eternal-design-tasks.jsonl` (what datagen consumes).
+
+## Ticketed work
+
+Design briefs and tickets are different jobs. A brief says what to make; a
+ticket also says what counts as done and who has to be convinced. The
+`ticket-workflow` skill covers the second kind: pull the ticket, research
+context, write a step-by-step walkthrough, keep an append-only execution log,
+and produce a report mapped to the acceptance criteria.
+
+```
+skills/ticket-workflow/
+  SKILL.md                            the binding: paths, reviewer, what happens after close
+  vendor/VENDOR.md                    provenance, pinned commit, divergence policy
+  vendor/ticket-workflow-template/    upstream tree, unmodified
+```
+
+The procedure is vendored verbatim from
+[franklioxygen/ticket-workflow-template](https://github.com/franklioxygen/ticket-workflow-template)
+at `59de20b`, so the five ticket documents are on disk after `deploy.sh` seeds
+`skills/` and no fetch happens at ticket time. `SKILL.md` is the only file the
+agent needs to read first: it maps upstream's `WORKSPACE` and `TEMPLATE_DIR` onto
+this deployment, substitutes a clean self-review pass for the second AI CLI the
+runbook assumes, and ties the close step back to the learning duties in
+`SOUL.md`. Deployment changes go there; `vendor/` stays byte-identical so a sync
+is a directory replace.
+
+Tickets live in runtime state, not in git:
+
+```
+data/tickets/open/          captured, not started
+data/tickets/in-progress/   actively being worked
+data/tickets/closed/        finalized — searched by the research phase of later tickets
+```
+
+`deploy.sh` creates those three plus `data/repos/` (where the workflow clones any
+support repositories). They sit under the gitignored `data/` deliberately: ticket
+folders carry internal identifiers and query text, and `closed/` accumulates into
+a corpus the same way `eternal/design-intelligence/` does.
 
 ## Generating training trajectories
 

@@ -1,0 +1,11 @@
+.DS_Store
+
+# Working ticket folders. These may hold real ticket details, queries, and
+# internal identifiers. This repo is public, so their contents are never
+# committed. The empty lifecycle folders are kept via .gitkeep.
+all-tickets/open/*
+all-tickets/in-progress/*
+all-tickets/closed/*
+!all-tickets/open/.gitkeep
+!all-tickets/in-progress/.gitkeep
+!all-tickets/closed/.gitkeep
