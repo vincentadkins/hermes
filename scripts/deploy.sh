@@ -44,7 +44,10 @@ fi
 
 # ── 2. Seed HERMES_HOME (data/) — no-clobber so learned state survives ──────
 log "seeding $DATA"
-mkdir -p "$DATA"/{cron,sessions,logs,memories,skills,scripts,studio}
+mkdir -p "$DATA"/{cron,sessions,logs,memories,skills,scripts,studio,repos}
+# Ticket workspace for the ticket-workflow skill. Ticket folders hold internal
+# identifiers and query text, so they stay in gitignored runtime state.
+mkdir -p "$DATA"/tickets/{open,in-progress,closed}
 cp -n "$ROOT/config/config.yaml" "$DATA/config.yaml" 2>/dev/null || true
 cp -n "$ROOT/config/SOUL.md" "$DATA/SOUL.md" 2>/dev/null || true
 cp -rn "$ROOT/skills/." "$DATA/skills/" 2>/dev/null || true

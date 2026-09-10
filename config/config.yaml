@@ -24,6 +24,10 @@ agent:
     the graphic-design skill before design work, and record what you learn —
     your skills and memory persist across sessions and are the point of this
     deployment.
+    Ticketed work is a different mode from a design brief. When a task arrives
+    as a ticket or an issue link, load the ticket-workflow skill and work under
+    $HERMES_HOME/tickets/ — open/, in-progress/, closed/ — where closed/ is a
+    searchable record of prior tickets that its research phase reads.
 
 terminal:
   backend: "local"
